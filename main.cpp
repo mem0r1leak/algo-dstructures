@@ -1,28 +1,49 @@
 #include <iostream>
-#include "implementation.h"
+#include "hash-table.h"
 
-void printTable(const BinaryTree<Car>::Node* table) {
-    if (table == nullptr) return;
-    std::cout << table->value << std::endl;
-    printTable(table->left);
-    printTable(table->right);
-}
+template <typename V>
+class StringHashMap : public HashTable<std::string, V> {
+public:
+    StringHashMap(size_t size) : HashTable<std::string, V>(size) {}
+
+    void printInfo() {
+        std::cout << "Nodes: " << std::endl;
+        for (size_t i = 0; i < this->table_size; i++) {
+            if (this->nodes[i].inUse) {
+                std::cout << "|next: " << this->nodes[i].next << ", curr:" << this->nodes+i << "| " << this->nodes[i].bucket.key << ": " << this->nodes[i].bucket.value << std::endl;
+            }
+        }
+    }
+
+    size_t items_c() {
+        return this->items_count;
+    }
+
+protected:
+    size_t hash(const std::string &key) override {
+        size_t hash = 0;
+        for (auto& c : key)
+            hash += c;
+        return hash;
+    }
+};
 
 int main() {
-    BinaryTree<Car> tree{};
-    tree.insert(Car{.year = 2015, .name = "Tesla Model S"});
-    tree.insert(Car{.year = 2012, .name = "BMW M3"});
-    tree.insert(Car{.year = 2010, .name = "Toyota Camry"});
-    tree.insert(Car{.year = 2020, .name = "Porsche Taycan"});
-    tree.insert(Car{.year = 2022, .name = "Lucid Air"});
+    StringHashMap<int> table(5);
 
-    tree.remove(Car{.year = 2010, .name = ""});
+    table.put("Vlad", 2000);
+    table.put("Stas", 1000);
+    table.put("a", 5);
+    table.put("a", 6);
+    table.put("Banana", 0);
 
-    printTable(tree.head);
-
-    const auto valueAfterRemove = tree.find(Car{.year=2020, .name = ""});
-    if (valueAfterRemove != nullptr) {
-        std::cout << valueAfterRemove->value.name << std::endl;
-    }
+    std::cout << table["Vlad"] << std::endl;
+    std::cout << table["Stas"] << std::endl;
+    std::cout << table["a"] << std::endl;
+    std::cout << table["Banana"] << std::endl;
+    table["Banana"] = 6;
+    std::cout << table["Banana"] << std::endl;
+    std::cout << "items count: " << table.items_c() << std::endl;
+    std::cout << "fill level: " << table.fill_level() << std::endl;
     return 0;
 }

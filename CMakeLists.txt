@@ -13,15 +13,16 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(algo_dstructures main.cpp implementation.h)
-add_executable(binary_tree_tests
-        tests/binary_tree_tests.cpp
-        implementation.h
+add_executable(algo_dstructures main.cpp hash-table.h
+)
+add_executable(tests
+        hash-table.h
+        tests/hash_table_tests.cpp
 )
 
-target_link_libraries(binary_tree_tests
+target_link_libraries(tests
         GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(binary_tree_tests)
+gtest_discover_tests(tests)
