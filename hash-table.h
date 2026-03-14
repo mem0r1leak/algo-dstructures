@@ -28,6 +28,7 @@ public:
     }
 
     void resize(const size_t size) {
+        freeNodePtr = 0;
         auto old_nodes = nodes;
         const auto old_table_size = table_size;
         this->table_size = size;
@@ -45,18 +46,16 @@ public:
     }
 
     void put(const K &key, const V &value) {
-        if (fill_level() > 60) resize(this->table_size*2);
+        if (fill_level() > 60) resize(this->table_size * 2);
         if (Node *node = nodeByHash(key); !node->inUse) {
             // Звичайна вставка
             node->use(Bucket{key, value});
             ++items_count;
-        }
-        else {
+        } else {
             // Колізія
             if (auto node_by_key = nodeByKey(key)) {
                 node_by_key->use(Bucket{key, value});
-            }
-            else {
+            } else {
                 auto new_node = anyFreeNode();
                 if (new_node == nullptr) throw std::runtime_error("Not enough nodes");
                 new_node->use(Bucket{key, value});
@@ -88,6 +87,7 @@ public:
             prev->next = node->next;
             node->free();
         }
+        freeNodePtr = 0;
     }
 
     Bucket *get(const K &key) {
@@ -96,7 +96,7 @@ public:
         return &node->bucket;
     }
 
-    V& operator[](const K &key) {
+    V &operator[](const K &key) {
         if (get(key) == nullptr) put(key, V());
         return get(key)->value;
     }
@@ -122,16 +122,13 @@ protected:
             this->inUse = true;
         }
 
-        void add_next(Node* node) {
+        void add_next(Node *node) {
             if (next == nullptr) {
                 next = node;
                 return;
             }
-            auto node_ptr = next;
-            while (node_ptr->next) {
-                node_ptr = node_ptr->next;
-            }
-            node_ptr->next = node;
+            node->next = this->next;
+            this->next = node;
         }
 
         void free() {
@@ -147,12 +144,13 @@ protected:
 
     virtual size_t hash(const K &key) = 0;
 
+    int freeNodePtr = 0;
+
     // дістаємо будь яку вільну ноду.
     Node *anyFreeNode() {
-        for (size_t i = 0; i < table_size; i++) {
-            if (auto node = nodes[i]; !node.inUse) return nodes + i;
-        }
-        return nullptr;
+        while (nodes[freeNodePtr].inUse) ++freeNodePtr;
+        if (freeNodePtr >= table_size) return nullptr;
+        return nodes + freeNodePtr;
     }
 
     // Шукає ноду(можливо не активну) за ключем, включаючи ті що мають колізії.

@@ -14,6 +14,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(algo_dstructures main.cpp hash-table.h
+        bench_mine.cpp
+#        bench_stl.cpp
 )
 add_executable(tests
         hash-table.h
