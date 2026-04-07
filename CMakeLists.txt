@@ -13,10 +13,13 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(algo_dstructures main.cpp)
+add_executable(algo_dstructures main.cpp
+        queue.h
+        priority_queue.h)
 
 add_executable(unit_tests
         tests/priority_queue_tests.cpp
+        tests/queue_tests.cpp
 )
 
 target_link_libraries(unit_tests

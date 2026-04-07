@@ -45,7 +45,7 @@ TEST_F(PriorityQueueTest, ThrowsOnEmpty) {
     EXPECT_THROW(pq.peek(), std::out_of_range);
 }
 
-// 5. Тест на "витривалість" (багато пушів/попів упереміш)
+// 5. Тест на "витривалість" (багато push/pop упереміш)
 TEST_F(PriorityQueueTest, InterleavedOperations) {
     pq.push(1, 10);
     pq.push(2, 1);
